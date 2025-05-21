@@ -15,8 +15,8 @@ class RecomanadorCol·laboratiu(Recomanador):
         super().__init__(dades)
         self._min_vots = min_vots
 
-    def ordena_similituts()
-    def calcula_k(user_id, matrix, item_ids):
+    
+    def calcula_k(user_id, matrix, item_ids,k):
     # Matriu on files són usuaris i columnes són pel·lícules
         n_users = len(matrix)
         similarities = {}
@@ -49,10 +49,36 @@ class RecomanadorCol·laboratiu(Recomanador):
                 else:
                     similarities[other_id] = numerator / denominator
         
-        return similarities
-
-     
-        def ordenar_similituts(similarities,k):
-            
-
-    def recomana(self, user_id: int, n: int = 10) -> List[Tuple[int, float]]:
+        similituds_ordenades = dict(sorted(similarities.items(), key=lambda x: x[1], reverse=True))
+        # Retorna els k més similars
+        similituds =  dict(list(similituds_ordenades.items())[:k])
+        
+    
+        # Calcular la mitjana de les puntuacions de l'usuari actiu (mu)
+        user_ratings = dict(zip(item_ids, matrix[user_id]))
+        rated_items = [i for i in item_ids if user_ratings[i] != 0]
+        mu = sum(user_ratings[i] for i in rated_items) / len(rated_items) if rated_items else 0
+        
+        # Calcular les mitjanes dels k usuaris similars
+        similar_users_ratings = {uid: dict(zip(item_ids, matrix[uid])) for uid in similituds.keys()}
+        mu_similar = {}
+        for uid, ratings in similar_users_ratings.items():
+            rated_items_similar = [i for i in item_ids if ratings[i] != 0]
+            mu_similar[uid] = sum(ratings[i] for i in rated_items_similar) / len(rated_items_similar) if rated_items_similar else 0
+        
+        # Calcular puntuacions predites per a tots els ítems no valorats
+        predictions = {}
+        for item in item_ids:
+            if user_ratings[item] == 0:  # Només predir per ítems no valorats
+                numerator = 0
+                denominator = 0
+                for uid, sim in similituds.items():
+                    if similar_users_ratings[uid][item] != 0:  # Només si l'usuari similar ha valorat l'ítem
+                        numerator += sim * (similar_users_ratings[uid][item] - mu_similar[uid])
+                        denominator += abs(sim)
+                predictions[item] = mu + (numerator / denominator if denominator != 0 else 0)
+        
+        # Ordenar ítems per puntuació predita (de major a menor) i agafar els recomanats
+        recommended = dict(sorted(predictions.items(), key=lambda x: x[1], reverse=True))
+        
+        return recommended

@@ -79,17 +79,10 @@ class RecomanadorCol·laboratiu(Recomanador):
         recommended = [item for item, score in sorted(predictions.items(), key=lambda x: x[1], reverse=True)]
         return recommended
 
-    # Exemple d'ús
-    matrix = [
-        [7, 6, 7, 4, 5, 4],  # U1
-        [6, 7, 0, 4, 3, 4],  # U2
-        [1, 2, 2, 3, 3, 4],  # U3
-        [1, 0, 1, 2, 3, 3]   # U4
-    ]
-    k = 2
+    
 
-    # Usuari actiu (U2, índex 1)
-    recomanacions = recomana(1, matrix, k)
-    print("Llista d'ítems ordenats per puntuació (de major a menor):")
-    print(recomanacions)
 
+
+
+
+    
